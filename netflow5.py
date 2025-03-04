@@ -43,14 +43,18 @@ def parse_netflow_v5_header(data):
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
-    print(f"Received from {router_ip}")
+    print(f"Received from {router_ip}, data length: {len(data)} bytes")
 
     try:
         header = parse_netflow_v5_header(data)
+        print(f"Header: version={header['version']}, count={header['count']}")
         if header["version"] != 5:
+            print("Not NetFlow v5, skipping...")
             continue
 
         flow_data = data[20:]
+        print(f"Flow data length: {len(flow_data)} bytes, expected: {header['count'] * 48} bytes")
+              
         for i in range(header["count"]):
             flow_start = i * 48
             flow_end = flow_start + 48
