@@ -23,6 +23,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 print(f"Listening for NetFlow on {SERVER_IP}:{SERVER_PORT}")
 
+#Parsing Netflow V5 header
+def parse_netflow_v5_header(data):
+    header = struct.unpack('!HHIIIIHH', data[:20])
+    return {"version": header[0], "count": header[1]}
+
 #Parsing NetFlow V5 to readable format
 def parse_netflow_v5_flow(data):
     flow = struct.unpack('!IIIIHHIIIIHH', data)
@@ -30,6 +35,10 @@ def parse_netflow_v5_flow(data):
     dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
     dst_port = flow[11]
     return {"src_ip": src_ip, "dst_ip": dst_ip, "dst_port": dst_port}
+
+def parse_netflow_v5_header(data):
+    header = struct.unpack('!HHIIIIHH', data[:20])
+    return {"version": header[0], "count": header[1]}
 
 while True:
     data, addr = sock.recvfrom(4096)
