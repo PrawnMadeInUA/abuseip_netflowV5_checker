@@ -15,7 +15,7 @@ except FileNotFoundError:
 
 #Settings
 SERVER_IP = SETTINGS["SERVER_IP"]
-SERVER_PORT = SETTINGS["SERVER_PORT"]
+SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 
 #Server for listening netflow v5 traffic
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
