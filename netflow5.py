@@ -3,7 +3,7 @@ import requests
 from telegram import Bot
 
 #Read settings from file setting.txt
-SETTINGS={}
+SETTINGS = {}
 try:
     with open("settings.txt", "r") as file:
         for line in file:
@@ -11,5 +11,18 @@ try:
             SETTINGS[key] = value
 except FileNotFoundError:
     print("File settings.txt not found in the same folder")
-print(SETTINGS)
+    exit
+
+#Settings
+SERVER_IP = SETTINGS["SERVER_IP"]
+SERVER_PORT = SETTINGS["SERVER_PORT"]
+
+#Server for listening netflow v5 traffic
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((SERVER_IP, SERVER_PORT))
+print("Listening for NetFlow on {SERVER_IP}:{SERVER_PORT}")
+
+print(sock)
+
+
 
