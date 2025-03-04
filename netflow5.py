@@ -22,5 +22,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 print(f"Listening for NetFlow on {SERVER_IP}:{SERVER_PORT}")
 
-
+while True:
+    data, addr = sock.recvfrom(2048)
+    print(f"Received data from {addr[0]}:{addr[1]}")
 
