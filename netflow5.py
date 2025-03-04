@@ -9,5 +9,7 @@ try:
         for line in file:
             key, value = line.strip().split("=", 1)
             SETTINGS[key] = value
-    exit
+except FileNotFoundError:
+    print("File settings.txt not found in the same folder")
 print(SETTINGS)
+
