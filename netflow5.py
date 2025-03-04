@@ -44,6 +44,8 @@ while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
     print(f"Received from {router_ip}, data length: {len(data)} bytes")
+    hex_data = data.hex()  # for check
+    print(f"Raw data (hex): {hex_data}")  # for check
 
     try:
         header = parse_netflow_v5_header(data)
@@ -54,12 +56,17 @@ while True:
 
         flow_data = data[20:]
         print(f"Flow data length: {len(flow_data)} bytes, expected: {header['count'] * 48} bytes")
-              
+        if len(flow_data) < header["count"] * 48:  # for check
+            print(f"Error: Flow data too short! Expected {header['count'] * 48} bytes, got {len(flow_data)}")  # for check
+            continue  # for check
+
         for i in range(header["count"]):
             flow_start = i * 48
             flow_end = flow_start + 48
             if flow_end <= len(flow_data):
-                flow = parse_netflow_v5_flow(flow_data[flow_start:flow_end])
+                flow_segment = flow_data[flow_start:flow_end]  # for check
+                print(f"Flow {i+1} segment length: {len(flow_segment)} bytes")  # for check
+                flow = parse_netflow_v5_flow(flow_segment)  # for check
                 src_ip = flow["src_ip"]
                 dst_ip = flow["dst_ip"]
                 dst_port = flow["dst_port"]
@@ -67,5 +74,3 @@ while True:
                 print(f"Source IP: {src_ip}, Destination IP: {dst_ip}, Destination Port: {dst_port}")
     except Exception as e:
         print(f"Error parsing NetFlow data: {e}")
-
-
