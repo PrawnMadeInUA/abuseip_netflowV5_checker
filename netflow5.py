@@ -45,7 +45,7 @@ while True:
     print(f"Raw data (hex): {data.hex()}")
 
     # Перевірка довжини перед парсингом
-    if len(data) < 20:
+    if len(data) < 24:
         print(f"Error: Packet too short ({len(data)} bytes), skipping...")
         continue
 
