@@ -22,13 +22,6 @@ SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 
-#Parsing Netflow V5 header
-def parse_netflow_v5_header(data):
-    format_string = '!HHIIIIHH'
-    expected_size = struct.calcsize(format_string)
-    print(f"Parsing header with format: {format_string}, expected size: {expected_size} bytes")
-    header = struct.unpack(format_string, data[:24])
-    return {"version": header[0], "count": header[1]}
 
 while True:
     data, addr = sock.recvfrom(4096)
@@ -37,11 +30,7 @@ while True:
     print(f"Raw data (hex): {data.hex()}")
 
     try:
-        print(f"Attempting to parse header with {len(data[:24])} bytes")
-        header = parse_netflow_v5_header(data)
-        print(f"Header: version={header['version']}, count={header['count']}")
-        if header["version"] != 5:
-            continue
+        header = struct.unpack(data)
             
         flow_data = data[24:]
         for i in range(header["count"]):
