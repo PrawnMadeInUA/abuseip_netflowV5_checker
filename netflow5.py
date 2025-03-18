@@ -21,7 +21,6 @@ SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 #Server for listening netflow v5 traffic
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
-print(f"Listening for NetFlow on {SERVER_IP}:{SERVER_PORT}")
 
 #Parsing Netflow V5 header
 def parse_netflow_v5_header(data):
@@ -43,22 +42,17 @@ def parse_netflow_v5_header(data):
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
-    print(f"Received from {router_ip}, data length: {len(data)} bytes")
-    hex_data = data.hex()  # for check
-    print(f"Raw data (hex): {hex_data}")  # for check
 
     try:
         header = parse_netflow_v5_header(data)
         print(f"Header: version={header['version']}, count={header['count']}")
         if header["version"] != 5:
-            print("Not NetFlow v5, skipping...")
             continue
 
         flow_data = data[20:]
-        print(f"Flow data length: {len(flow_data)} bytes, expected: {header['count'] * 48} bytes")
-        if len(flow_data) < header["count"] * 48:  # for check
-            print(f"Error: Flow data too short! Expected {header['count'] * 48} bytes, got {len(flow_data)}")  # for check
-            continue  # for check
+        expected_flow_length = header["count"] * 48
+        if len(flow_data) != expected_flow_length:
+            continue
 
         for i in range(header["count"]):
             flow_start = i * 48
