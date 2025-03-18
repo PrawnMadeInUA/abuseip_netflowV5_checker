@@ -42,6 +42,8 @@ def parse_netflow_v5_header(data):
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
+    print(f"Received from {router_ip}, data length: {len(data)} bytes")
+    print(f"Raw data (hex): {data.hex()}")
 
     try:
         header = parse_netflow_v5_header(data)
