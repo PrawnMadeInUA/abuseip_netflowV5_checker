@@ -44,29 +44,13 @@ while True:
     print(f"Received from {router_ip}, data length: {len(data)} bytes")
     print(f"Raw data (hex): {data.hex()}")
 
-    # Перевірка довжини перед парсингом
-    if len(data) < 24:
-        print(f"Error: Packet too short ({len(data)} bytes), skipping...")
-        continue
-
     try:
-        print(f"Attempting to parse header with {len(data[:20])} bytes")
+        print(f"Attempting to parse header with {len(data[:24])} bytes")
         header = parse_netflow_v5_header(data)
         print(f"Header: version={header['version']}, count={header['count']}")
         if header["version"] != 5:
             continue
-        
-        expected_total_length = 20 + (header["count"] * 48)
-        print(f"Expected total length: {expected_total_length} bytes")
-       
-        if len(data) < expected_total_length:
-            print(f"Packet too short: {len(data)} < {expected_total_length}, skipping...")
-            continue
- 
-        if len(data) > expected_total_length:
-            print(f"Trimming packet from {len(data)} to {expected_total_length} bytes")
-            data = data[:expected_total_length]
-
+            
         flow_data = data[20:]
         print(f"Flow data length: {len(flow_data)} bytes")
         for i in range(header["count"]):
