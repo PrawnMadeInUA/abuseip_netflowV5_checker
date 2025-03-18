@@ -27,7 +27,7 @@ def parse_netflow_v5_header(data):
     format_string = '!HHIIIIHH'
     expected_size = struct.calcsize(format_string)
     print(f"Parsing header with format: {format_string}, expected size: {expected_size} bytes")
-    header = struct.unpack(format_string, data[:20])
+    header = struct.unpack(format_string, data[:24])
     return {"version": header[0], "count": header[1]}
 
 #Parsing NetFlow V5 to readable format
