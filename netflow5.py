@@ -35,10 +35,6 @@ def parse_netflow_v5_flow(data):
     dst_port = flow[11]
     return {"src_ip": src_ip, "dst_ip": dst_ip, "dst_port": dst_port}
 
-def parse_netflow_v5_header(data):
-    header = struct.unpack('!HHIIIIHH', data[:20])
-    return {"version": header[0], "count": header[1]}
-
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
