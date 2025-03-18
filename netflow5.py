@@ -30,14 +30,6 @@ def parse_netflow_v5_header(data):
     header = struct.unpack(format_string, data[:24])
     return {"version": header[0], "count": header[1]}
 
-#Parsing NetFlow V5 to readable format
-def parse_netflow_v5_flow(data):
-    flow = struct.unpack('!IIIIHHIIIIHH', data)
-    src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
-    dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-    dst_port = flow[11]
-    return {"src_ip": src_ip, "dst_ip": dst_ip, "dst_port": dst_port}
-
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
@@ -51,22 +43,19 @@ while True:
         if header["version"] != 5:
             continue
             
-        flow_data = data[20:]
-        print(f"Flow data length: {len(flow_data)} bytes")
+        flow_data = data[24:]
         for i in range(header["count"]):
             flow_start = i * 48
             flow_end = flow_start + 48
             flow_segment = flow_data[flow_start:flow_end]
 
-            try:
-                flow = parse_netflow_v5_flow(flow_segment)
-                src_ip = flow["src_ip"]
-                dst_ip = flow["dst_ip"]
-                dst_port = flow["dst_port"]
-                print(f"Source IP: {src_ip}, Destination IP: {dst_ip}, Destination Port: {dst_port}")
-            except struct.error as e:
-                print(f"Error parsing flow {i+1}: {e}")
-                continue
+            flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
+            src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
+            dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
+            dst_port = flow[11]
+    
+            print(f"Flow {i + 1}: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
+
     except struct.error as e:
         print(f"Struct error parsing header: {e}")
     except Exception as e:
