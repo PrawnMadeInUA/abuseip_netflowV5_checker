@@ -29,15 +29,20 @@ while True:
     print(f"Received from {router_ip}, data length: {len(data)} bytes")
     print(f"Raw data (hex): {data.hex()}")
 
-    header = struct.unpack('!HHIIIIHH', data[:24])
-    count = header[1]    
-    flow_data = data[24:]
+    try:
+        header = struct.unpack('!HHIIIIHH', data[:24])
+        count = header[1]
+        flow_data = data[24:]
 
-    flow_segment = flow_data[0:48]
-    flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
-    src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
-    dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-    dst_port = flow[11]
-    print(f"Flow 1: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
+        flow_segment = flow_data[0:48]
+        flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
+        src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
+        dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
+        dst_port = flow[11]
+        print(f"Flow 1: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
 
-
+    except struct.error as e:
+        print(f"Struct error parsing header or flow: {e}")
+        print(f"Data causing error: {data.hex()}")  
+    except Exception as e:
+        print(f"Error parsing NetFlow data: {e}")
