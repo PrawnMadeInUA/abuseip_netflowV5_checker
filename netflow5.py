@@ -30,20 +30,23 @@ while True:
     print(f"Raw data (hex): {data.hex()}")
 
     try:
-        header = struct.unpack('!HHIIIIBBH', data[:24])
+        header = struct.unpack('!HHIIIIHH', data[:24])
         count = header[1]    
         flow_data = data[24:]
-        for i in range(count):
-            flow_start = i * 48
-            flow_end = flow_start + 48
-            flow_segment = flow_data[flow_start:flow_end]
+        print(f"Header is {flow_data}")
+        print(f"Count is {count}")
 
-            flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
-            src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
-            dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-            dst_port = flow[11]
+#        for i in range(count):
+#            flow_start = i * 48
+#            flow_end = flow_start + 48
+#            flow_segment = flow_data[flow_start:flow_end]
+#
+#            flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
+#            src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
+#            dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
+#            dst_port = flow[11]
     
-            print(f"Flow {i + 1}: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
+#            print(f"Flow {i + 1}: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
 
     except struct.error as e:
         print(f"Struct error parsing header: {e}")
