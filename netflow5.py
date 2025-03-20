@@ -12,7 +12,7 @@ try:
             SETTINGS[key] = value
 except FileNotFoundError:
     print("File settings.txt not found in the same folder")
-    exit()
+    exit(1)
 
 #Settings
 SERVER_IP = SETTINGS["SERVER_IP"]
@@ -30,10 +30,10 @@ while True:
     print(f"Raw data (hex): {data.hex()}")
 
     try:
-        header = struct.unpack(data)
-            
+        header = struct.unpack('!HHIIIIBBH', data[:24])
+        count = header[1]    
         flow_data = data[24:]
-        for i in range(header["count"]):
+        for i in range(count):
             flow_start = i * 48
             flow_end = flow_start + 48
             flow_segment = flow_data[flow_start:flow_end]
