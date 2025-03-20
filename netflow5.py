@@ -22,12 +22,22 @@ SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 
+# Function for check if destination ip is private
+def is_private_ip(ip):
+    octets = list(map(int, ip.split(".")))
+    if octets[0] == 10:
+        return True
+    if octets[0] == 172 and 16 <= octets[1] <= 31:
+        return True
+    if octets[0] == 192 and octets[1] == 168:
+        return True
+    return False
+
+
 
 while True:
     data, addr = sock.recvfrom(4096)
     router_ip = addr[0]
-    print(f"Received from {router_ip}, data length: {len(data)} bytes")
-    print(f"Raw data (hex): {data.hex()}")
 
     try:
         header = struct.unpack('!HHIIIIHH', data[:24])
@@ -40,13 +50,12 @@ while True:
             flow_start = i * 48
             flow_end = flow_start + 48
             flow_segment = flow_data[flow_start:flow_end]
-            flow = struct.unpack('!IIIIHHIIIIHHBBH', flow_segment)
+            flow = struct.unpack('!IIIHHIIIIHHBBBBHHBBH', flow_segment)
             src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
             dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-            dst_port = flow[11]
-            print(f"Flow {i + 1}: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
+            dst_port = flow[10]
+            if is_private_ip(dst_ip):
+                continue
+            print(f"Flow {i}: Source IP: {src_ip}, Destination IP: {dst_ip}, Dest port: {dst_port}")
     except struct.error as e:
         print(f"Struct error parsing header or flow: {e}")
-        print(f"Data causing error: {data.hex()}")
-    except Exception as e:
-        print(f"Error parsing NetFlow data: {e}")
