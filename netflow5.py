@@ -22,8 +22,12 @@ SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 
-# Function for check if destination ip is private
+# Function for check if destination ip is private of public DNS
 def is_private_ip(ip):
+    if ip == "8.8.8.8":
+        return True
+    if ip == "8.8.4.4": 
+        return True  
     octets = list(map(int, ip.split(".")))
     if octets[0] == 10:
         return True
@@ -32,8 +36,6 @@ def is_private_ip(ip):
     if octets[0] == 192 and octets[1] == 168:
         return True
     return False
-
-
 
 while True:
     data, addr = sock.recvfrom(4096)
