@@ -34,7 +34,10 @@ while True:
         count = header[1]
         flow_data = data[24:]
 
+        print(f"Count: {count}, Flow data length: {len(flow_data)}")
+
         flow_segment = flow_data[0:48]
+        print(f"Flow segment length: {len(flow_segment)}")
         flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
         src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
         dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
@@ -43,6 +46,6 @@ while True:
 
     except struct.error as e:
         print(f"Struct error parsing header or flow: {e}")
-        print(f"Data causing error: {data.hex()}")  
+        print(f"Data causing error: {data.hex()}")
     except Exception as e:
         print(f"Error parsing NetFlow data: {e}")
