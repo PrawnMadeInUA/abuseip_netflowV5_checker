@@ -24,6 +24,9 @@ SERVER_PORT = int(SETTINGS["SERVER_PORT"])
 ABUSEIPDB_API_KEY = SETTINGS["ABUSEIPDB_API_KEY"]
 CACHE_DURATION_SECONDS = int(SETTINGS["CACHE_DURATION_DAYS"]) * 86400
 MALICIOUS_THRESHOLD = int(SETTINGS["MALICIOUS_THRESHOLD"])
+TELEGRAM_TOKEN = SETTINGS["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = SETTINGS["TELEGRAM_CHAT_ID"]
+
 
 #Check if ip in cache
 def check_ip_in_cache(ip):
@@ -68,34 +71,39 @@ def check_ip_abuseipdb(ip):
             (ip, 1 if is_malicious else 0, time.time(), country_code))
         conn.commit()
         return is_malicious, country_code, abuse_score
-    return False, "N/A", 0
+    else:
+        print(f"AbuseIPDB API error: {response.status_code} - {response.text}")
+        return False, "N/A", 0
 
 
 # Parse netflow segments
 def parse_netflow_data(data):
-        flow = struct.unpack('!IIIHHIIIIHHBBBBHHBBH', data)
-        src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
-        dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-        dst_port = flow[10]
-        return{"src_ip": src_ip, "dst_ip": dst_ip, "dst_port": dst_port}
+    flow = struct.unpack('!IIIHHIIIIHHBBBBHHBBH', data)
+    src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
+    dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
+    dst_port = flow[10]
+    return{"src_ip": src_ip, "dst_ip": dst_ip, "dst_port": dst_port}
 
-# Database for cashing ips
-conn = sqlite3.connect("ip_cache.db")
-cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS ip_cache 
-                  (ip TEXT PRIMARY KEY, is_malicious INTEGER, timestamp REAL, country_code TEXT)''')
-conn.commit()
+# Telegram message sender
+async def send_telegram_message(router_ip, src_ip, dst_ip, dst_port, country_code, abuse_score):
+    message = (f"On router: {router_ip} detected connetction to malicious IP:\n"
+               f"From IP: {src_ip} to IP: {dst_ip} (Country: {country_code})\n"
+               f"On port: {dst_port}\n"
+               f"ABUSEIP abuse score is: {abuse_score}%.")
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+
+# Telegram bot initialisation
+bot = Bot(TELEGRAM_TOKEN)
 
 #Server for listening netflow v5 traffic
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_IP, SERVER_PORT))
 
-try:
+async def main():
     while True:
-        data, addr = sock.recvfrom(4096)
-        router_ip = addr[0]
-
         try:
+            data, addr = sock.recvfrom(4096)
+            router_ip = addr[0]
             header = struct.unpack('!HHIIIIHH', data[:24])
             count = header[1]
             flow_data = data[24:]
@@ -105,6 +113,8 @@ try:
                 flow_end = flow_start + 48
                 flow_segment = flow_data[flow_start:flow_end]
                 flow = parse_netflow_data(flow_segment)
+                if flow is None:
+                    continue
                 dst_ip = flow["dst_ip"]
                 if is_private_ip(dst_ip):
                     continue
@@ -112,15 +122,24 @@ try:
                 abuse_score = 0
                 if is_malicious is None:
                     is_malicious, country_code, abuse_score = check_ip_abuseipdb(dst_ip)
-                    message = f"IP is not malicious: {dst_ip}"
-                    print(message)
 
                 if is_malicious:
-                    message = f"Malicious IP detected: {dst_ip}, Score: {abuse_score}, Country: {country_code}, Port: {flow['dst_port']}"
-                    print(message)
+                    await send_telegram_message(router_ip, flow["src_ip"], dst_ip, flow["dst_port"], country_code, abuse_score)
+        except socket.error as e:
+            print(f"Socket error: {e}")
+            time.sleep(1)
         except Exception as e:
             print(f"Error: {e}")
 
-finally:
-    conn.close()
-    sock.close()
+if __name__ == "__main__":
+    with sqlite3.connect("ip_cache.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS ip_cache 
+                          (ip TEXT PRIMARY KEY, is_malicious INTEGER, timestamp REAL, country_code TEXT)''')
+        conn.commit()
+
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.settimeout(10)
+            sock.bind((SERVER_IP, SERVER_PORT))
+            bot = Bot(TELEGRAM_TOKEN)
+            asyncio.run(main())
