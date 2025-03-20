@@ -36,14 +36,15 @@ while True:
 
         print(f"Count: {count}, Flow data length: {len(flow_data)}")
 
-        flow_segment = flow_data[0:48]
-        print(f"Flow segment length: {len(flow_segment)}")
-        flow = struct.unpack('!IIIIHHIIIIHH', flow_segment)
-        src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
-        dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
-        dst_port = flow[11]
-        print(f"Flow 1: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
-
+        for i in range(count):
+            flow_start = i * 48
+            flow_end = flow_start + 48
+            flow_segment = flow_data[flow_start:flow_end]
+            flow = struct.unpack('!IIIIHHIIIIHHBBH', flow_segment)
+            src_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[0]))))
+            dst_ip = ".".join(map(str, struct.unpack('BBBB', struct.pack('!I', flow[1]))))
+            dst_port = flow[11]
+            print(f"Flow {i + 1}: Source IP = {src_ip}, Destination IP = {dst_ip}, Destination Port = {dst_port}")
     except struct.error as e:
         print(f"Struct error parsing header or flow: {e}")
         print(f"Data causing error: {data.hex()}")
