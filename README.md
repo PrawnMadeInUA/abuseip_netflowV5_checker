@@ -48,6 +48,32 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
 1. Ensure your router is sending NetFlow v5 data (see ).
 
 2. Run the script:
-   python netflow5.py
+   ```
+   python3 netflow5.py
+   ```
 
-The tool listens for NetFlow packets, checks IPs, and sends Telegram alerts for malicious activity.
+3. The tool listens for NetFlow packets, checks IPs, and sends Telegram alerts for malicious activity.
+
+## MikroTik Setup
+To configure a MikroTik router to send NetFlow v5 data:
+1. Log in to your MikroTik router via WinBox or SSH.
+
+2. Enable NetFlow:
+   ```
+   /ip traffic-flow
+   set enabled=yes
+   ```
+
+3. Set the target (your server IP and port):
+   ```
+   /ip traffic-flow target
+   add dst-address=192.168.1.100 dst-port=2055 src-address=0.0.0.0 version=5
+   ```
+
+4. Apply settings:
+   ```
+   /ip traffic-flow
+   set active-flow-timeout=1m cache-entries=1k interfaces=all
+   ```
+
+
