@@ -1,0 +1,14 @@
+#Your server IP address
+SERVER_IP=X.X.X.X
+#Your server udp port
+SERVER_PORT=2055
+#ABUSEIP API KEY
+ABUSEIPDB_API_KEY=
+#Telegram token for notification send
+TELEGRAM_TOKEN=
+#Telegram chat ID for notification send
+TELEGRAM_CHAT_ID=
+#Cashe duration in days
+CACHE_DURATION_DAYS=30
+# ABUSEIP minimum threshold for detect in percents
+MALICIOUS_THRESHOLD=80
