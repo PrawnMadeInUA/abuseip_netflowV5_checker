@@ -24,8 +24,10 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
    ```
    
 3. Install dependencies:
+   ```
    pip install requests python-telegram-bot
-
+   ```
+   
 4. Create and configure settings.txt
    ```
    # Your server IP address
