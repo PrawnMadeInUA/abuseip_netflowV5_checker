@@ -18,13 +18,16 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
 
 ## Installation
 1. Clone the repository:
+   ```
    git clone https://github.com/PrawnMadeInUA/abuseip_netflowV5_checker.git
    cd abuseip_netflowV5_checker
-
-2. Install dependencies:
+   ```
+   
+3. Install dependencies:
    pip install requests python-telegram-bot
 
-3. Create and configure settings.txt
+4. Create and configure settings.txt
+   ```
    Your server IP address
    SERVER_IP=192.168.1.100
    Your server UDP port
@@ -39,6 +42,7 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
    CACHE_DURATION_DAYS=30
    Minimum abuse score to flag as malicious (0-100%)
    MALICIOUS_THRESHOLD=80
+   ```
 
 ## Usage
 1. Ensure your router is sending NetFlow v5 data (see ).
