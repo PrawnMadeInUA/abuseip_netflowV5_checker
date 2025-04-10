@@ -25,19 +25,19 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
    pip install requests python-telegram-bot
 
 3. Create and configure settings.txt
-   # Your server IP address
+   ### Your server IP address
    SERVER_IP=192.168.1.100
-   # Your server UDP port
+   ### Your server UDP port
    SERVER_PORT=2055
-   # AbuseIPDB API key (get from abuseipdb.com)
+   ### AbuseIPDB API key (get from abuseipdb.com)
    ABUSEIPDB_API_KEY=your_api_key_here
-   # Telegram bot token (from BotFather)
+   ### Telegram bot token (from BotFather)
    TELEGRAM_TOKEN=your_telegram_token_here
-   # Telegram chat ID (find via @getidbot)
+   ### Telegram chat ID (find via @getidbot)
    TELEGRAM_CHAT_ID=your_chat_id_here
-   # Cache duration in days
+   ### Cache duration in days
    CACHE_DURATION_DAYS=30
-   # Minimum abuse score to flag as malicious (0-100%)
+   ### Minimum abuse score to flag as malicious (0-100%)
    MALICIOUS_THRESHOLD=80
 
 ## Usage
