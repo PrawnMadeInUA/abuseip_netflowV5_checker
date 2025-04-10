@@ -13,7 +13,7 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
 - Python 3.7+
 - Packages: `requests`, `telegram`, `sqlite3` (built-in), `asyncio` (built-in)
 - AbuseIPDB API key (free tier available)
-- Telegram bot token and chat ID
+- Telegram bot token and chat ID (how to get: https://gist.github.com/nafiesl/4ad622f344cd1dc3bb1ecbe468ff9f8a)
 - MikroTik router (optional, for NetFlow data)
 
 ## Installation
@@ -45,7 +45,7 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
    ```
 
 ## Usage
-1. Ensure your router is sending NetFlow v5 data (see ).
+1. Ensure your router is sending NetFlow v5 data.
 
 2. Run the script:
    ```
