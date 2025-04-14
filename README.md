@@ -56,6 +56,8 @@ This tool monitors NetFlow v5 traffic, checks destination IPs against the AbuseI
 
 3. The tool listens for NetFlow packets, checks IPs, and sends Telegram alerts for malicious activity.
 
+!![Screenshot](block.jpg)
+
 ## MikroTik Setup
 To configure a MikroTik router to send NetFlow v5 data:
 1. Log in to your MikroTik router via WinBox or SSH.
